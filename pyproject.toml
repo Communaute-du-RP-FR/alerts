@@ -1,7 +1,7 @@
 [project]
 name = "alerts"
-version = "0.1.0"
-requires-python = ">=3.9"
+version = "0.1.0" # Keep in sync with docs/source/conf.py
+requires-python = ">=3.13"
 description = "Python script to send an alert on Discord when a service start or stop."
 readme = { file = "README.md", content-type = "text/markdown" }
 license = "MIT"
@@ -19,13 +19,46 @@ dependencies = [
 [project.urls]
 repository = "https://github.com/Communaute-du-RP-FR/alerts.git"
 
+[dependency-groups]
+tests = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+]
+
+docs = [
+    "furo",
+    "sphinx",
+    "sphinx-design",
+]
+
 
 [project.scripts]
 alerts = "alerts.__main__:main"
 
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=80.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = { find = { include = ["alerts*"] } }
+
+[tool.setuptools.package-data]
+alerts = ["py.typed"]
+
+[tool.ruff.lint]
+select = ["F", "W", "I", "B", "SIM", "RET", "Q", "N", "S", "BLE"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["S101"]
+
+[tool.mypy]
+files = ["alerts", "tests"]
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unreachable = true
+no_implicit_optional = true
+show_error_codes = true
+pretty = true
+disable_error_code = ["import-not-found", "import-untyped"]

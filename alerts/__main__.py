@@ -16,24 +16,21 @@ Environment Variables:
     DISCORD_WEBHOOK_URL: Discord webhook URL for sending notifications (required)
 """
 
-import asyncio
 import argparse
-import discord
+import asyncio
 import os
 import time
 from typing import List
 
+import discord
+
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 """str: Discord webhook URL retrieved from environment variable."""
 
-LayoutItem = discord.ui.Item[discord.ui.LayoutView]
-"""Type alias for Discord UI layout items."""
 
-LayoutContainer = discord.ui.Container[discord.ui.LayoutView]
-"""Type alias for Discord UI layout containers."""
-
-
-def build_container(service_name: str, new_status: str) -> LayoutContainer:
+def build_container(
+    service_name: str, new_status: str
+) -> discord.ui.Container[discord.ui.LayoutView]:
     """
     Build a Discord UI container with formatted status notification.
 
@@ -45,9 +42,9 @@ def build_container(service_name: str, new_status: str) -> LayoutContainer:
     :param new_status: Current status of the service (e.g., STARTED, STOPPED, ERROR)
     :type new_status: str
     :return: Container with formatted notification UI elements
-    :rtype: LayoutContainer
+    :rtype: discord.ui.Container[discord.ui.LayoutView]
     """
-    items: List[LayoutItem] = []
+    items: List[discord.ui.Item[discord.ui.LayoutView]] = []
     items.append(discord.ui.TextDisplay(content="## Status Notification"))
     items.append(
         discord.ui.Separator(visible=True, spacing=discord.SeparatorSpacing.large)
@@ -68,7 +65,7 @@ def build_container(service_name: str, new_status: str) -> LayoutContainer:
     )
 
 
-async def send_webhook(service_name: str, status: str):
+async def send_webhook(service_name: str, status: str) -> None:
     """
     Send a status alert to Discord via webhook.
 
@@ -90,7 +87,7 @@ async def send_webhook(service_name: str, status: str):
     webhook.send("@everyone")
 
 
-def main():
+def main() -> None:
     """
     Main entry point for the alerts CLI application.
 

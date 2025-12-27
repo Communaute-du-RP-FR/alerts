@@ -1,0 +1,86 @@
+name: Alerts CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: Test on Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.13"]
+
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v5
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+
+    - name: Install dependencies & build package
+      run: |
+        uv pip install setuptools wheel build pytest pytest-asyncio pytest-cov --system
+        uv build
+        uv pip install dist/*.whl --system
+
+    - name: Verify installed packages
+      run: |
+        uv pip list
+
+    - name: Import alerts
+      run: |
+        printf "import alerts\n" | python
+
+    - name: Test with pytest
+      run: |
+        pytest
+
+  lint:
+    name: Lint with Ruff
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Run Ruff Linter
+        run: |
+          uvx ruff@0.14.5 check .
+          uvx ruff@0.14.5 format --check .
+
+  type_check:
+    name: Type Check with Mypy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Set up venv
+        run: uv venv .venv
+
+      - name: Install dependencies & build package
+        run: |
+          . .venv/bin/activate
+          uv pip install setuptools wheel build mypy
+          uv build
+          uv pip install dist/*.whl
+
+      - name: Run Mypy Type Checker
+        run: |
+          uvx mypy@1.18.2
